@@ -116,16 +116,18 @@
             if (activeTeam) {
                 activeTeam.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             }
+            loadArticles(team.name);
         }
 
-        async function loadArticles() {
+        async function loadArticles(team_name) {
             try {
-                const response = await fetch('/news_cache.json');
+                const response = await fetch(`http://localhost:5000/new_team/${team_name}`);
                 const data = await response.json();
                 articles = data.articles;
+                currentArticleIndex = 0;
                 displayArticle(currentArticleIndex);
                 createDots();
-                populateSidebar();
+                //populateSidebar();
             } catch (error) {
                 console.error('Error loading articles:', error);
                 document.getElementById('article-content').innerHTML = 
@@ -133,21 +135,21 @@
             }
         }
 
-        function populateSidebar() {
-            const articleList = document.getElementById('article-list');
-            articles.forEach((article, index) => {
-                const articleItem = document.createElement('div');
-                articleItem.className = 'sidebar-article';
-                articleItem.innerHTML = `
-                    <span class="article-title">${article.title}</span>
-                `;
-                articleItem.onclick = () => {
-                    currentArticleIndex = index;
-                    displayArticle(index);
-                };
-                articleList.appendChild(articleItem);
-            });
-        }
+        // function populateSidebar() {
+        //     const articleList = document.getElementById('article-list');
+        //     articles.forEach((article, index) => {
+        //         const articleItem = document.createElement('div');
+        //         articleItem.className = 'sidebar-article';
+        //         articleItem.innerHTML = `
+        //             <span class="article-title">${article.title}</span>
+        //         `;
+        //         articleItem.onclick = () => {
+        //             currentArticleIndex = index;
+        //             displayArticle(index);
+        //         };
+        //         articleList.appendChild(articleItem);
+        //     });
+        // }
 
         function displayArticle(index) {
             const article = articles[index];

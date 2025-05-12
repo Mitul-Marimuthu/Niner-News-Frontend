@@ -20,7 +20,7 @@ body {
 h1 {
     text-align: center;
     color: var(--team-color);
-    margin-bottom: 2rem;
+    margin-bottom: 0;
     font-size: 2.5rem;
     transition: color 0.3s ease;
 }
@@ -360,4 +360,66 @@ h1 {
     padding: 2rem;
     color: #ff0000;
     font-size: 1.2rem;
+}
+
+.header-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.speak-button {
+    position: absolute;
+    right: 0;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    color: var(--team-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+}
+
+.speak-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+}
+
+.speak-button.speaking {
+    animation: pulse 1.5s infinite;
+    background-color: var(--team-color);
+    color: white;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Update mobile styles */
+@media (max-width: 768px) {
+    .header-container {
+        padding-right: 40px;
+    }
+    
+    .speak-button {
+        font-size: 1.5rem;
+        width: 40px;
+        height: 40px;
+    }
 } 

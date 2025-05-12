@@ -24,7 +24,12 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="container">
-                <h1 id="team-name">49ers News</h1>
+                <div class="header-container">
+                    <h1 id="team-name">49ers News</h1>
+                    <button id="speak-button" class="speak-button" onclick="speakHeadlines()" title="Read Headlines">
+                        🔊
+                    </button>
+                </div>
                 <div class="news-container">
                     <button class="nav-button prev" onclick="prevArticle()">❮</button>
                     <div class="article-container">
@@ -80,6 +85,7 @@
         let currentTeamIndex = 27; // Start with 49ers
         let currentArticleIndex = 0;
         let articles = [];
+        let isSpeaking = false;
 
         function populateTeams() {
             const teamList = document.getElementById('team-list');
@@ -100,7 +106,12 @@
             });
         }
 
-        function updateTeam() {
+        async function updateTeam() {
+            // Stop any ongoing speech when changing teams
+            window.speechSynthesis.cancel();
+            document.getElementById('speak-button').classList.remove('speaking');
+            isSpeaking = false;
+            
             const team = teams[currentTeamIndex];
             document.getElementById('team-name').textContent = `${team.name} News`;
             document.documentElement.style.setProperty('--team-color', team.color);
@@ -223,6 +234,46 @@
                 month: 'long',
                 day: 'numeric'
             });
+        }
+
+        function speakHeadlines() {
+            const button = document.getElementById('speak-button');
+            
+            // If already speaking, stop it
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                button.classList.remove('speaking');
+                isSpeaking = false;
+                return;
+            }
+            
+            const headlines = articles.map(article => article.title).join('. ');
+            
+            // Create speech synthesis
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = `Here are the latest headlines: ${headlines}`;
+            speech.rate = 0.9;
+            speech.pitch = 1;
+            
+            // Change button appearance while speaking
+            button.classList.add('speaking');
+            isSpeaking = true;
+            
+            // Handle speech end
+            speech.onend = () => {
+                button.classList.remove('speaking');
+                isSpeaking = false;
+            };
+            
+            // Handle speech error
+            speech.onerror = () => {
+                button.classList.remove('speaking');
+                isSpeaking = false;
+                console.error('Speech synthesis failed');
+            };
+            
+            // Start speaking
+            window.speechSynthesis.speak(speech);
         }
 
         window.onload = () => {

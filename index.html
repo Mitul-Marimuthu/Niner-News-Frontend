@@ -42,6 +42,9 @@
                 <div class="dots-container" id="dots-container">
                     <!-- Navigation dots will be added here -->
                 </div>
+                <div class="chat-button-container">
+                    <a href="chat.html" class="chat-button">Chat with Analyst Bot</a>
+                </div>
             </div>
         </div>
     </div>
@@ -82,10 +85,51 @@
             { id: 'WAS', name: 'Washington Commanders', color: '#5A1414' }
         ];
 
-        let currentTeamIndex = 27; // Start with 49ers
+        // let currentTeamIndex = 27; // Start with 49ers
         let currentArticleIndex = 0;
         let articles = [];
         let isSpeaking = false;
+
+        // Add this at the top with your other global variables
+        let currentTeamIndex = localStorage.getItem('currentTeamIndex') || 27; // Default to 49ers if nothing saved
+
+        // Add this new function to load the saved team
+        function loadSavedTeam() {
+            const team = teams[currentTeamIndex];
+            document.getElementById('team-name').textContent = `${team.name} News`;
+            
+            // Update colors
+            document.documentElement.style.setProperty('--team-color', team.color);
+            const isDark = isColorDark(team.color);
+            document.documentElement.style.setProperty('--text-color', isDark ? '#FFFFFF' : '#000000');
+            
+            // Update team selection
+            const teamItems = document.getElementsByClassName('team-item');
+            Array.from(teamItems).forEach((item, i) => {
+                item.classList.toggle('active', i === currentTeamIndex);
+            });
+
+            // Load articles from cache without making a new API call
+            loadArticlesFromCache();
+        }
+
+        // Add this new function to load articles from cache
+        async function loadArticlesFromCache() {
+            try {
+                const response = await fetch('../news_cache.json');
+                const data = await response.json();
+                
+                // Only update if the cache is for the current team
+                if (data.team === teams[currentTeamIndex].id) {
+                    articles = data.articles;
+                    currentArticleIndex = 0;
+                    displayArticle(currentArticleIndex);
+                    createDots();
+                }
+            } catch (error) {
+                console.error('Error loading articles from cache:', error);
+            }
+        }
 
         function populateTeams() {
             const teamList = document.getElementById('team-list');

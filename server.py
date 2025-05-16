@@ -49,7 +49,7 @@ def chat():
 def scrape_team(team_name):
     try:
         # Run the scraper script with the team ID as an argument
-        subprocess.run(['python', '../scraper.py', team_name], check=True)
+        subprocess.run(['python', 'scraper.py', team_name], check=True)
         
         # Read the updated cache file
         with open('news_cache.json', 'r') as f:

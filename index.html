@@ -174,7 +174,7 @@
             }
             loadArticles(team.name);
         }
-
+        //loads artricles by using an api call to the server
         async function loadArticles(team_name) {
             try {
                 const response = await fetch(`http://localhost:5000/new_team/${team_name}`);

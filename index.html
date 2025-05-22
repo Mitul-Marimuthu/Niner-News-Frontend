@@ -191,22 +191,6 @@
             }
         }
 
-        // function populateSidebar() {
-        //     const articleList = document.getElementById('article-list');
-        //     articles.forEach((article, index) => {
-        //         const articleItem = document.createElement('div');
-        //         articleItem.className = 'sidebar-article';
-        //         articleItem.innerHTML = `
-        //             <span class="article-title">${article.title}</span>
-        //         `;
-        //         articleItem.onclick = () => {
-        //             currentArticleIndex = index;
-        //             displayArticle(index);
-        //         };
-        //         articleList.appendChild(articleItem);
-        //     });
-        // }
-
         function displayArticle(index) {
             const article = articles[index];
             const content = document.getElementById('article-content');

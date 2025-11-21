@@ -17,8 +17,8 @@
       "dest": "server.py" 
     },
     {
-      "src": "/",
-      "dest": "index.html"
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }

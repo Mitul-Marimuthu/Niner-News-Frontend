@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import subprocess
+from scraper import NFLNewsScraper
 import json
 import os
 import google.generativeai as genai
@@ -49,8 +50,9 @@ def chat():
 def scrape_team(team_name):
     try:
         # Run the scraper script with the team ID as an argument
-        subprocess.run(['python', 'scraper.py', team_name], check=True)
-        
+        # subprocess.run(['python', 'scraper.py', team_name], check=True)
+        scraper = NFLNewsScraper(team_name=team_name)
+        scraper.run()
         # Read the updated cache file
         with open('news_cache.json', 'r') as f:
             articles = json.load(f)

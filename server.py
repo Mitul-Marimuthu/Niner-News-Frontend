@@ -25,9 +25,9 @@ model = genai.GenerativeModel('gemini-2.0-flash')
 def serve_index():
     return send_from_directory('.', 'index.html')
 
-@app.route('/<path:path>')
-def serve_static(path):
-    return send_from_directory('.', path)
+# @app.route('/<path:path>')
+# def serve_static(path):
+#     return send_from_directory('.', path)
 
 @app.route('/api/chat', methods=['POST'])
 def chat():

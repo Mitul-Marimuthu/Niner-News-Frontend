@@ -15,11 +15,6 @@
     {
       "src": "/new_team/(.*)", 
       "dest": "server.py" 
-    },
-
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
     }
   ]
 }

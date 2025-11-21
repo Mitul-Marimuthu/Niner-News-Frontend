@@ -286,7 +286,7 @@ h1 {
     width: 40px;
     height: 40px;
     object-fit: contain;
-    // filter: brightness(0) invert(1); /* Make logos white */
+    filter: brightness(0) invert(1); /* Make logos white */
 }
 
 .team-item:hover img,

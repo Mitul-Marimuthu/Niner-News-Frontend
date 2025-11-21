@@ -117,7 +117,7 @@
         // Add this new function to load articles from cache
         async function loadArticlesFromCache() {
             try {
-                const response = await fetch('../news_cache.json');
+                const response = await fetch('news_cache.json');
                 const data = await response.json();
                 
                 // Only update if the cache is for the current team
@@ -177,7 +177,7 @@
         //loads artricles by using an api call to the server
         async function loadArticles(team_name) {
             try {
-                const response = await fetch(`http://localhost:5000/new_team/${team_name}`);
+                const response = await fetch(`http://localhost:8080/new_team/${team_name}`);
                 const data = await response.json();
                 articles = data.articles;
                 currentArticleIndex = 0;
@@ -211,11 +211,10 @@
                     ${imageHtml}
                     <div class="article-text">
                         <h2>${article.title}</h2>
-                        <p class="source">Source: ${article.source}</p>
-                        <p class="description">${article.description || ''}</p>
+                        
                         <div class="article-footer">
                             <a href="${article.url}" target="_blank" class="read-more">Read Full Article</a>
-                            <span class="date">${formatDate(article.published)}</span>
+                            <span class="date">${formatDate(article.timestamp)}</span>
                         </div>
                     </div>
                 </div>

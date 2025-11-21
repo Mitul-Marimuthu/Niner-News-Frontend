@@ -15,27 +15,26 @@ class NFLNewsScraper:
         if not self.api_key:
             raise ValueError("Please set NEWS_API_KEY in your .env file")
         # callback uri
-        self.base_url = "https://newsapi.org/v2/everything"
+        self.base_url = "https://eventregistry.org/api/v1/article/getArticles"
         self.articles = [] # loads all of the articles
         self.team_name = team_name
 
 
     def fetch_articles(self):
         # Calculate date range (last 7 days)
+        print(self.api_key)
         end_date = datetime.now()
         start_date = end_date - timedelta(days=7)
         
         # Create search query based on team name
-        query = f'"{self.team_name}" AND (NFL OR football)'
+        query = f'"{self.team_name}" AND "FOOTBALL"'
         
         # Parameters for the API request
         params = {
-            'q': query,
-            'from': start_date.strftime('%Y-%m-%d'),
-            'to': end_date.strftime('%Y-%m-%d'),
-            'language': 'en',
-            'sortBy': 'publishedAt',
-            'apiKey': self.api_key
+            "action": "getArticles",
+            "keyword": query,
+            "apiKey": self.api_key,
+            "forceMaxDataTimeWindow": 31
         }
 
         try:
@@ -43,16 +42,16 @@ class NFLNewsScraper:
             response.raise_for_status()  # Raise an exception for bad status codes
             
             data = response.json()
-            
-            if data['status'] == 'ok':
-                for article in data['articles']:
+            print(data.keys())
+            if data is not None:
+                for article in data['articles']['results']:
                     self.articles.append({
                         'title': article['title'],
                         'url': article['url'],
-                        'source': article['source']['name'],
-                        'published': article['publishedAt'],
-                        'description': article['description'],
-                        'imageUrl': article.get('urlToImage', ''),
+                        # 'source': article['source']['name'],
+                        'published': article['time'],
+                        # 'description': article['description'],
+                        'imageUrl': article['image'],
                         'timestamp': datetime.now().isoformat()
                     })
                 print(f"Successfully fetched {len(self.articles)} articles for {self.team_name}")
@@ -85,5 +84,6 @@ class NFLNewsScraper:
 
 if __name__ == "__main__":
     team_name = sys.argv[1] if len(sys.argv) > 1 else 'San Francisco 49ers'  # Default to 49ers if no team specified
+    print(team_name)
     scraper = NFLNewsScraper(team_name)
     scraper.run()    

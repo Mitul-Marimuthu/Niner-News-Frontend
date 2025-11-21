@@ -46,7 +46,7 @@ def chat():
             'error': str(e)
         }), 500
 
-# @app.route('/new_team/<team_name>')
+@app.route('/new_team/<team_name>')
 def scrape_team(team_name):
     try:
         # Run the scraper script with the team ID as an argument

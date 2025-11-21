@@ -61,6 +61,7 @@ def scrape_team(team_name):
 
 @app.route('/news_cache.json')
 def get_cache():
+    #blah
     return send_from_directory('.', 'news_cache.json')
 
 if __name__ == '__main__':

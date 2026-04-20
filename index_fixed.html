@@ -1,0 +1,284 @@
+Change the line to: <!-- main page for the project -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFL News</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo-container">
+                <img src="./logos/nfl_logo.png" alt="NFL Logo" class="logo">
+            </div>
+            <div class="team-selector">
+                <div class="team-list" id="team-list">
+                    <!-- Teams will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container">
+                <div class="header-container">
+                    <h1 id="team-name">49ers News</h1>
+                    <button id="speak-button" class="speak-button" onclick="speakHeadlines()" title="Read Headlines">
+                        🔊
+                    </button>
+                </div>
+                <div class="news-container">
+                    <button class="nav-button prev" onclick="prevArticle()">❮</button>
+                    <div class="article-container">
+                        <div id="article-content">
+                            <!-- Articles will be loaded here -->
+                        </div>
+                    </div>
+                    <button class="nav-button next" onclick="nextArticle()">❯</button>
+                </div>
+                <div class="dots-container" id="dots-container">
+                    <!-- Navigation dots will be added here -->
+                </div>
+                <div class="chat-button-container">
+                    <a href="chat.html" class="chat-button">Chat with Analyst Bot</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store the team data in a separate JSON file and load it into the application using the fetch API.
+
+        // let currentTeamIndex = 27; // Start with 49ers
+        let currentArticleIndex = 0;
+        let articles = [];
+        let isSpeaking = false;
+
+        // Add this at the top with your other global variables
+        let currentTeamIndex = localStorage.getItem('currentTeamIndex') || 27; // Default to 49ers if nothing saved
+
+        // Add this new function to load the saved team
+        function loadSavedTeam() {
+            const team = teams[currentTeamIndex];
+            document.getElementById('team-name').textContent = `${team.name} News`;
+            
+            // Update colors
+            document.documentElement.style.setProperty('--team-color', team.color);
+            const isDark = isColorDark(team.color);
+            document.documentElement.style.setProperty('--text-color', isDark ? '#FFFFFF' : '#000000');
+            
+            // Update team selection
+            const teamItems = document.getElementsByClassName('team-item');
+            Array.from(teamItems).forEach((item, i) => {
+                item.classList.toggle('active', i === currentTeamIndex);
+            });
+
+            // Load articles from cache without making a new API call
+            loadArticlesFromCache();
+        }
+
+        // Add this new function to load articles from cache
+        async function loadArticlesFromCache() {
+            try {
+                const response = await fetch('news_cache.json');
+                const data = await response.json();
+                
+                // Only update if the cache is for the current team
+                if (data.team === teams[currentTeamIndex].id) {
+                    articles = data.articles;
+                    currentArticleIndex = 0;
+                    displayArticle(currentArticleIndex);
+                    createDots();
+                }
+            } catch (error) {
+                console.error('Error loading articles from cache:', error);
+            }
+        }
+
+        function populateTeams() {
+            const teamList = document.getElementById('team-list');
+            teams.forEach((team, index) => {
+                const teamItem = document.createElement('div');
+                teamItem.className = 'team-item';
+                teamItem.innerHTML = `
+                    <img src="./logos/${team.id}_logo.png" 
+                         alt="${team.name}" 
+                         onerror="this.src='https://static.www.nfl.com/t_headshot_desktop/players-logo/placeholder.png'">
+                         ${team.name}
+                `;
+                teamItem.onclick = () => {
+                    currentTeamIndex = index;
+                    updateTeam();
+                };
+                teamList.appendChild(teamItem);
+            });
+        }
+
+        async function updateTeam() {
+            // Stop any ongoing speech when changing teams
+            window.speechSynthesis.cancel();
+            document.getElementById('speak-button').classList.remove('speaking');
+            isSpeaking = false;
+            
+            const team = teams[currentTeamIndex];
+            document.getElementById('team-name').textContent = `${team.name} News`;
+            document.documentElement.style.setProperty('--team-color', team.color);
+            
+            // Update team selection
+            const teamItems = document.getElementsByClassName('team-item');
+            Array.from(teamItems).forEach((item, i) => {
+                item.classList.toggle('active', i === currentTeamIndex);
+            });
+
+            // Scroll the active team into view
+            const activeTeam = teamItems[currentTeamIndex];
+            if (activeTeam) {
+                activeTeam.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+            loadArticles(team.name);
+        }
+        //loads artricles by using an api call to the server
+        async function loadArticles(team_name) {
+            try {
+                // Change the API call to use HTTPS: 'https://localhost:8080/new_team/${team_name}'
+                const response = await fetch(`https://localhost:8080/new_team/${team_name}`);
+                const data = await response.json();
+                articles = data.articles;
+                currentArticleIndex = 0;
+                displayArticle(currentArticleIndex);
+                createDots();
+                //populateSidebar();
+            } catch (error) {
+                console.error('Error loading articles:', error);
+                document.getElementById('article-content').innerHTML = 
+                    '<div class="error">Error loading articles. Please try again later.</div>';
+            }
+        }
+
+        function displayArticle(index) {
+            const article = articles[index];
+            const content = document.getElementById('article-content');
+            
+            // Update sidebar highlighting
+            const sidebarArticles = document.getElementsByClassName('sidebar-article');
+            Array.from(sidebarArticles).forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+            // cool
+            const imageHtml = article.imageUrl ? 
+                `<div class="article-image">
+                    <img src="${article.imageUrl}" alt="${article.title}" onerror="this.style.display='none'">
+                </div>` : '';
+
+            content.innerHTML = `
+                <div class="article">
+                    ${imageHtml}
+                    <div class="article-text">
+                        <h2>${article.title}</h2>
+                        
+                        <div class="article-footer">
+                            <a href="${article.url}" target="_blank" class="read-more">Read Full Article</a>
+                            <span class="date">${formatDate(article.timestamp)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            updateDots();
+        }
+
+        function nextArticle() {
+            currentArticleIndex = (currentArticleIndex + 1) % articles.length;
+            displayArticle(currentArticleIndex);
+        }
+
+        function prevArticle() {
+            currentArticleIndex = (currentArticleIndex - 1 + articles.length) % articles.length;
+            displayArticle(currentArticleIndex);
+        }
+
+        function createDots() {
+            const dotsContainer = document.getElementById('dots-container');
+            dotsContainer.innerHTML = '';
+            
+            for (let i = 0; i < articles.length; i++) {
+                const dot = document.createElement('span');
+                dot.className = 'dot';
+                dot.onclick = () => {
+                    currentArticleIndex = i;
+                    displayArticle(i);
+                };
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateDots() {
+            const dots = document.getElementsByClassName('dot');
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].classList.toggle('active', i === currentArticleIndex);
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function speakHeadlines() {
+            const button = document.getElementById('speak-button');
+            
+            // If already speaking, stop it
+            if (isSpeaking) {
+                window.speechSynthesis.cancel();
+                button.classList.remove('speaking');
+                isSpeaking = false;
+                return;
+            }
+            
+            const headlines = articles.map(article => article.title).join('. ');
+            
+            // Create speech synthesis
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = `Here are the latest headlines: ${headlines}`;
+            speech.rate = 0.9;
+            speech.pitch = 1;
+            
+            // Change button appearance while speaking
+            button.classList.add('speaking');
+            isSpeaking = true;
+            
+            // Handle speech end
+            speech.onend = () => {
+                button.classList.remove('speaking');
+                isSpeaking = false;
+            };
+            
+            // Handle speech error
+            speech.onerror = () => {
+                button.classList.remove('speaking');
+                isSpeaking = false;
+                console.error('Speech synthesis failed');
+            };
+            
+            // Start speaking
+            window.speechSynthesis.speak(speech);
+        }
+
+        window.onload = () => {
+            // Change the line to: loadArticles(teams[currentTeamIndex].name);
+            loadArticles(teams[currentTeamIndex].name);
+        };
+
+        // Add keyboard navigation
+        // Consider using a library or framework that provides built-in support for keyboard navigation.
+    </script>
+</body>
+</html> 

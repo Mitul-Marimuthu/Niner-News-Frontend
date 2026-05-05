@@ -51,7 +51,7 @@ Change the comment to '<!-- main page for the project -->'
     </div>
 
     <script>
-        Consider using a separate file or API to load the team data.
+        // Consider using a separate file or API to load the team data.
 
         // let currentTeamIndex = 27; // Start with 49ers
         let currentArticleIndex = 0;
@@ -144,7 +144,7 @@ Change the comment to '<!-- main page for the project -->'
         //loads artricles by using an api call to the server
         async function loadArticles(team_name) {
             try {
-                Change the API call to use HTTPS: 'https://localhost:8080/new_team/${team_name}'
+                // Change the API call to use HTTPS: 'https://localhost:8080/new_team/${team_name}'
                 const data = await response.json();
                 articles = data.articles;
                 currentArticleIndex = 0;
@@ -271,11 +271,11 @@ Change the comment to '<!-- main page for the project -->'
             window.speechSynthesis.speak(speech);
         }
 
-        window.onload = () => {
-            Change the function call to 'loadArticles(teams[currentTeamIndex].name)'
+        window.onload = () => {loadArticles(teams[currentTeamIndex].name)};
+             // Change the function call to 'loadArticles(teams[currentTeamIndex].name)'
 
         // Add keyboard navigation
-        Consider using a library like jQuery to handle keyboard navigation.
+        // Consider using a library like jQuery to handle keyboard navigation.
     </script>
 </body>
 </html> 
